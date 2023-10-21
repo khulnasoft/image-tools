@@ -1,0 +1,18 @@
+name: PR Check
+on:
+  pull_request: {}
+  push:
+    branches:
+    - master
+
+jobs:
+  lint:
+    name: Run static checks
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v1
+      - uses: docker://quay.io/khulnasoft/image-maker:e55375ca5ccaea76dc15a0666d4f57ccd9ab89de
+        name: Run make lint
+        with:
+          entrypoint: sh
+          args: -c "git config --global --add safe.directory /github/workspace && make lint"

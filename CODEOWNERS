@@ -1,0 +1,17 @@
+# Code owners groups assigned to this repository and a brief description of their areas:
+# @khulnasoft/build              Building and packaging
+# @khulnasoft/ci-structure       Continuous integration, testing
+# @khulnasoft/contributing       Developer documentation & tools
+# @khulnasoft/github-sec         GitHub security (handling of secrets, consequences of pull_request_target, etc.)
+# @khulnasoft/loader             All related to LLVM, bpftool, khulnasoft loader, templating, etc.
+# @khulnasoft/sig-datapath       BPF Data Path
+
+# The following filepaths should be sorted so that more specific paths occur
+# after the less specific paths, otherwise the ownership for the specific paths
+# is not properly picked up in Github.
+* @khulnasoft/build
+/.github/workflows/ @khulnasoft/github-sec @khulnasoft/ci-structure @khulnasoft/build
+/CODEOWNERS @khulnasoft/contributing
+/images/bpftool @khulnasoft/loader
+/images/checkpatch @khulnasoft/sig-datapath
+/images/llvm @khulnasoft/loader

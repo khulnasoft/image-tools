@@ -1,0 +1,131 @@
+name: Images
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build-and-push:
+    name: Build and push all images
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v1
+      - uses: docker://quay.io/khulnasoft/image-maker:e55375ca5ccaea76dc15a0666d4f57ccd9ab89de
+        name: Register binfmt from multi-platform builds
+        with:
+          entrypoint: docker
+          args: run --privileged linuxkit/binfmt:a17941b47f5cb262638cfb49ffc59ac5ac2bf334
+      - uses: docker://quay.io/khulnasoft/image-maker:e55375ca5ccaea76dc15a0666d4f57ccd9ab89de
+        name: Run make lint
+        with:
+          entrypoint: sh
+          args: -c "git config --global --add safe.directory /github/workspace && make lint"
+      - uses: docker://quay.io/khulnasoft/image-maker:e55375ca5ccaea76dc15a0666d4f57ccd9ab89de
+        name: Run make maker-image
+        env:
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD_CI }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME_CI }}
+          QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD_IMAGE_TOOLS }}
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME_IMAGE_TOOLS }}
+        with:
+          entrypoint: sh
+          args: -c "git config --global --add safe.directory /github/workspace && make maker-image PUSH=true"
+      - uses: docker://quay.io/khulnasoft/image-maker:e55375ca5ccaea76dc15a0666d4f57ccd9ab89de
+        name: Run make tester-image
+        env:
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD_CI }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME_CI }}
+          QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD_IMAGE_TOOLS }}
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME_IMAGE_TOOLS }}
+        with:
+          entrypoint: make
+          args: tester-image PUSH=true
+      - uses: docker://quay.io/khulnasoft/image-maker:e55375ca5ccaea76dc15a0666d4f57ccd9ab89de
+        name: Run make compilers-image
+        env:
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD_CI }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME_CI }}
+          QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD_IMAGE_TOOLS }}
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME_IMAGE_TOOLS }}
+        with:
+          entrypoint: make
+          args: compilers-image PUSH=true
+      - uses: docker://quay.io/khulnasoft/image-maker:e55375ca5ccaea76dc15a0666d4f57ccd9ab89de
+        name: Run make bpftool-image
+        env:
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD_CI }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME_CI }}
+          QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD_IMAGE_TOOLS }}
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME_IMAGE_TOOLS }}
+        with:
+          entrypoint: make
+          args: bpftool-image PUSH=true
+      - uses: docker://quay.io/khulnasoft/image-maker:e55375ca5ccaea76dc15a0666d4f57ccd9ab89de
+        name: Run make llvm-image
+        env:
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD_CI }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME_CI }}
+          QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD_IMAGE_TOOLS }}
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME_IMAGE_TOOLS }}
+        with:
+          entrypoint: make
+          args: llvm-image PUSH=true
+      - uses: docker://quay.io/khulnasoft/image-maker:e55375ca5ccaea76dc15a0666d4f57ccd9ab89de
+        name: Run make startup-script-image
+        env:
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD_CI }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME_CI }}
+          QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD_IMAGE_TOOLS }}
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME_IMAGE_TOOLS }}
+        with:
+          entrypoint: make
+          args: startup-script-image PUSH=true
+      - uses: docker://quay.io/khulnasoft/image-maker:e55375ca5ccaea76dc15a0666d4f57ccd9ab89de
+        name: Run make ca-certificates-image
+        env:
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD_CI }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME_CI }}
+          QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD_IMAGE_TOOLS }}
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME_IMAGE_TOOLS }}
+        with:
+          entrypoint: make
+          args: ca-certificates-image PUSH=true
+      - uses: docker://quay.io/khulnasoft/image-maker:e55375ca5ccaea76dc15a0666d4f57ccd9ab89de
+        name: Run make checkpatch-image
+        env:
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD_CI }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME_CI }}
+          QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD_IMAGE_TOOLS }}
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME_IMAGE_TOOLS }}
+        with:
+          entrypoint: make
+          args: checkpatch-image PUSH=true
+      - uses: docker://quay.io/khulnasoft/image-maker:e55375ca5ccaea76dc15a0666d4f57ccd9ab89de
+        name: Run make network-perf-image 
+        env:
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD_CI }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME_CI }}
+          QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD_IMAGE_TOOLS }}
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME_IMAGE_TOOLS }}
+        with:
+          entrypoint: make
+          args: network-perf-image PUSH=true
+      - uses: docker://quay.io/khulnasoft/image-maker:e55375ca5ccaea76dc15a0666d4f57ccd9ab89de
+        name: Run make iptables-image
+        env:
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD_CI }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME_CI }}
+          QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD_IMAGE_TOOLS }}
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME_IMAGE_TOOLS }}
+        with:
+          entrypoint: make
+          args: iptables-image PUSH=true
+      - uses: docker://quay.io/khulnasoft/image-maker:e55375ca5ccaea76dc15a0666d4f57ccd9ab89de
+        name: Run make iptables-20.04-image
+        env:
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD_CI }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME_CI }}
+          QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD_IMAGE_TOOLS }}
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME_IMAGE_TOOLS }}
+        with:
+          entrypoint: make
+          args: iptables-20.04-image PUSH=true
